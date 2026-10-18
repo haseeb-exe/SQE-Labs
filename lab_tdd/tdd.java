@@ -104,11 +104,11 @@ class PrerequisiteChecker {
 
 // Main execution class to run test cases
 public class tdd {
-    private static void runTest(String testName, boolean actual, boolean expected) {
+    private static void runTest(String testName, String courseCode, boolean actual, boolean expected) {
         if (actual != expected) {
-            throw new AssertionError(testName + " failed: expected " + expected + " but got " + actual);
+            throw new AssertionError(testName + " failed for " + courseCode + ": expected " + expected + " but got " + actual);
         }
-        System.out.println(testName + ": PASS (expected " + expected + ")");
+        System.out.println(testName + " (" + courseCode + "): " + actual + " (Expected: " + expected + ")");
     }
 
     public static void main(String[] args) {
@@ -117,7 +117,7 @@ public class tdd {
         Course math101 = new Course("MATH101", new ArrayList<>());
         Course math201 = new Course("MATH201", Arrays.asList("MATH101"));
         Course chem201 = new Course("CHEM201", Arrays.asList("CHEM101"));
-        Course phy201 = new Course("PHY201", Arrays.asList("PHYS101"));
+        Course phy201 = new Course("PHYS201", Arrays.asList("PHYS101"));
         Course advancedChem = new Course("CHEM301", Arrays.asList("PHYS101"));
 
         Student student = new Student("S1001");
@@ -127,19 +127,19 @@ public class tdd {
 
         PrerequisiteChecker checker = new PrerequisiteChecker();
 
-        // Test 1: No prerequisites should allow registration
-        runTest("Test 1 - No prerequisites", checker.canRegister(student, math101), true);
+        // Test 1: Course with no prerequisites
+        runTest("Test 1 (No Prerequisites)", math101.getCode(), checker.canRegister(student, math101), true);
 
-        // Test 2: Completed prerequisite with passing grade should allow registration
-        runTest("Test 2 - Satisfied prerequisite", checker.canRegister(student, math201), true);
+        // Test 2: Satisfied prerequisite
+        runTest("Test 2 (Satisfied Prerequisite)", math201.getCode(), checker.canRegister(student, math201), true);
 
-        // Test 3: In-progress prerequisite should block registration
-        runTest("Test 3 - In-progress prerequisite", checker.canRegister(student, chem201), false);
+        // Test 3: Prerequisite taken only in an in-progress semester
+        runTest("Test 3 (In-Progress Prerequisite)", chem201.getCode(), checker.canRegister(student, chem201), false);
 
-        // Test 4: Missing prerequisite should block registration
-        runTest("Test 4 - Missing prerequisite", checker.canRegister(student, advancedChem), false);
+        // Test 4: Missing prerequisite
+        runTest("Test 4 (Missing Prerequisite)", advancedChem.getCode(), checker.canRegister(student, advancedChem), false);
 
-        // Test 5: Prerequisite with grade below passing threshold should block registration
-        runTest("Test 5 - Failing prerequisite grade", checker.canRegister(student, phy201), false);
+        // Test 5: Prerequisite with failing grade
+        runTest("Test 5 (Failing Prerequisite Grade)", phy201.getCode(), checker.canRegister(student, phy201), false);
     }
 }
