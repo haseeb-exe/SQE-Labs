@@ -104,39 +104,42 @@ class PrerequisiteChecker {
 
 // Main execution class to run test cases
 public class tdd {
+    private static void runTest(String testName, boolean actual, boolean expected) {
+        if (actual != expected) {
+            throw new AssertionError(testName + " failed: expected " + expected + " but got " + actual);
+        }
+        System.out.println(testName + ": PASS (expected " + expected + ")");
+    }
+
     public static void main(String[] args) {
-        // Define Courses
-        Course math101 = new Course("MATH101", new ArrayList<>());                // No prerequisites
-        Course math201 = new Course("MATH201", Arrays.asList("MATH101"));         // Requires MATH101
-        Course chem201 = new Course("CHEM201", Arrays.asList("CHEM101"));         // Requires CHEM101
-        Course advancedChem = new Course("CHEM301", Arrays.asList("PHYS101"));     // Requires PHYS101
+        System.out.println("=== Prerequisite Checker Test Suite ===");
 
-        // Initialize Student
+        Course math101 = new Course("MATH101", new ArrayList<>());
+        Course math201 = new Course("MATH201", Arrays.asList("MATH101"));
+        Course chem201 = new Course("CHEM201", Arrays.asList("CHEM101"));
+        Course phy201 = new Course("PHY201", Arrays.asList("PHYS101"));
+        Course advancedChem = new Course("CHEM301", Arrays.asList("PHYS101"));
+
         Student student = new Student("S1001");
-
-        // Populate Student Academic Records
-        student.addRecord("MATH101", true, 2.7);   // Completed with passing grade (Satisfied)
-        student.addRecord("CHEM101", false, 0.0);  // In-progress semester (Not completed)
-        // Note: PHYS101 is not added at all (Missing)
+        student.addRecord("MATH101", true, 2.7);
+        student.addRecord("CHEM101", false, 0.0);
+        student.addRecord("PHYS101", true, 0.5);
 
         PrerequisiteChecker checker = new PrerequisiteChecker();
 
-        System.out.println("=== Prerequisite Checker Test Suite ===");
-        
-        // 1. Course with no prerequisites
-        boolean test1 = checker.canRegister(student, math101);
-        System.out.println("Test 1 (No Prerequisites - MATH101): " + test1 + " (Expected: true)");
+        // Test 1: No prerequisites should allow registration
+        runTest("Test 1 - No prerequisites", checker.canRegister(student, math101), true);
 
-        // 2. Satisfied prerequisite
-        boolean test2 = checker.canRegister(student, math201);
-        System.out.println("Test 2 (Satisfied Prerequisite - MATH201): " + test2 + " (Expected: true)");
+        // Test 2: Completed prerequisite with passing grade should allow registration
+        runTest("Test 2 - Satisfied prerequisite", checker.canRegister(student, math201), true);
 
-        // 3. Prerequisite taken only in an in-progress semester
-        boolean test3 = checker.canRegister(student, chem201);
-        System.out.println("Test 3 (In-Progress Prerequisite - CHEM201): " + test3 + " (Expected: false)");
+        // Test 3: In-progress prerequisite should block registration
+        runTest("Test 3 - In-progress prerequisite", checker.canRegister(student, chem201), false);
 
-        // 4. Missing prerequisite
-        boolean test4 = checker.canRegister(student, advancedChem);
-        System.out.println("Test 4 (Missing Prerequisite - CHEM301): " + test4 + " (Expected: false)");
+        // Test 4: Missing prerequisite should block registration
+        runTest("Test 4 - Missing prerequisite", checker.canRegister(student, advancedChem), false);
+
+        // Test 5: Prerequisite with grade below passing threshold should block registration
+        runTest("Test 5 - Failing prerequisite grade", checker.canRegister(student, phy201), false);
     }
 }
